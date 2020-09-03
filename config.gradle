@@ -1,0 +1,25 @@
+
+ext {
+
+  group = 'com.c332030.mybatis'
+  version = '0.0.1-SNAPSHOT'
+
+  charset = 'utf-8'
+
+  versions = [
+
+    c_commons_java: '0.0.1-SNAPSHOT'
+
+    , junit: '4.13'
+    , lombok: '1.18.12'
+
+    , mybatis: '3.5.5'
+    , mapper: '4.1.5'
+    // , pagehelper: '5.2.0'
+
+    // , mybatis_starter: '2.1.1'
+    // , mapper_starter: '2.1.5'
+    // , pagehelper_starter: '1.2.13'
+
+  ]
+}
