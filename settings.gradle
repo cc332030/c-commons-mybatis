@@ -14,3 +14,5 @@ include 'c-mybatis-constant'
 include 'c-mybatis-model'
 
 include 'c-mybatis-dao'
+
+include 'c-mybatis-plugin'

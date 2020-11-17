@@ -81,8 +81,13 @@ subprojects {
         testCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
         testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
-        // api group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
-        // api group: 'tk.mybatis', name: 'mapper-spring-boot-starter' , version: versions.mapper_starter
+        compileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
+        testCompileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
+
+        // compileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
+        // testCompileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
+
+      // api group: 'tk.mybatis', name: 'mapper-spring-boot-starter' , version: versions.mapper_starter
         // api group: 'tk.mybatis', name: 'mapper', version: versions.mybatis
 
     }
