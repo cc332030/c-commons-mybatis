@@ -1,6 +1,6 @@
 buildscript {
 
-    apply from: 'config.gradle'
+  apply from: 'config.gradle'
 }
 
 plugins {
@@ -12,31 +12,31 @@ def versions = ext.versions
 
 allprojects {
 
-    apply plugin: 'java-library'
+  apply plugin: 'java-library'
   apply plugin: 'idea'
-    apply plugin: 'maven-publish'
+  apply plugin: 'maven-publish'
   apply plugin: 'signing'
 
   group = ext.group
   version = ext.version
 
-    sourceCompatibility = JavaVersion.VERSION_11
+  sourceCompatibility = JavaVersion.VERSION_11
   targetCompatibility = JavaVersion.VERSION_11
 
   [compileJava, compileTestJava, javadoc]*.options*.encoding = ext.charset
 
-    jar {
-        enabled = true
+  jar {
+    enabled = true
 
     into("META-INF/resources") {
       from("src/main/webapp")
     }
 
-        into("META-INF/maven/$project.group/$project.name") {
-            from { generatePomFileForMavenPublication }
-            rename ".*", "pom.xml"
-        }
+    into("META-INF/maven/$project.group/$project.name") {
+      from { generatePomFileForMavenPublication }
+      rename ".*", "pom.xml"
     }
+  }
 
   java {
     withJavadocJar()
@@ -50,47 +50,47 @@ allprojects {
     }
   }
 
-    repositories {
-        maven {
+  repositories {
+    maven {
       url 'https://oss.sonatype.org/content/groups/public/'
-              }
+    }
     mavenCentral()
-    }
+  }
 
-    dependencies {
+  dependencies {
 
-        // logback
-        compileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
-        testCompileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
+    // logback
+    compileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
+    testCompileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
 
-        compileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
-        testCompileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
+    compileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
+    testCompileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
 
-        testImplementation group: 'junit', name: 'junit', version: versions.junit
+    testImplementation group: 'junit', name: 'junit', version: versions.junit
 
-        // lombok
-        compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-        annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    // lombok
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
-        testCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-        testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
 
-        compileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
-        testCompileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
+    compileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
+    testCompileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
 
-        // compileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
-        // testCompileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
+    // compileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
+    // testCompileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
 
-      // api group: 'tk.mybatis', name: 'mapper-spring-boot-starter' , version: versions.mapper_starter
-        // api group: 'tk.mybatis', name: 'mapper', version: versions.mybatis
+    // api group: 'tk.mybatis', name: 'mapper-spring-boot-starter' , version: versions.mapper_starter
+    // api group: 'tk.mybatis', name: 'mapper', version: versions.mybatis
 
-    }
+  }
 
-    // 实时更新 snapshots
-    configurations.all {
-        resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
-        resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-    }
+  // 实时更新 snapshots
+  configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
+  }
 
   sourceSets {
     main {
@@ -100,9 +100,9 @@ allprojects {
     }
   }
 
-    test {
-        exclude '**/*Test*.class'
-    }
+  test {
+    exclude '**/*Test*.class'
+  }
 
   publishing {
     publications {
