@@ -160,7 +160,7 @@ allprojects {
   }
 
   signing {
-    sign publishing.publications.mavenJava
+    sign publishing.publications
   }
 
   nexusStaging {
