@@ -18,8 +18,7 @@ subprojects {
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
 
-    group = rootProject.ext.group
-    version = rootProject.ext.version
+    group = 'com.c332030.mybatis'
 
     sourceCompatibility = JavaVersion.VERSION_11
     sourceCompatibility = JavaVersion.VERSION_11
