@@ -1,114 +1,172 @@
+buildscript {
+
+  apply from: 'config.gradle'
+}
+
+plugins {
+  id "io.codearte.nexus-staging" version "0.30.0"
+}
 
 def ext = rootProject.ext
 def versions = ext.versions
 
-buildscript {
+allprojects {
 
-    apply from: 'config.gradle'
+  apply plugin: 'java-library'
+  apply plugin: 'idea'
+  apply plugin: 'maven-publish'
+  apply plugin: 'signing'
+
+  group = ext.group
+  version = ext.version
+
+  sourceCompatibility = JavaVersion.VERSION_11
+  targetCompatibility = JavaVersion.VERSION_11
+
+  [compileJava, compileTestJava, javadoc]*.options*.encoding = ext.charset
+
+  jar {
+    enabled = true
+
+    into("META-INF/resources") {
+      from("src/main/webapp")
+    }
+
+    into("META-INF/maven/$project.group/$project.name") {
+      from { generatePomFileForMavenPublication }
+      rename ".*", "pom.xml"
+    }
+  }
+
+  java {
+    withJavadocJar()
+    withSourcesJar()
+  }
+
+  idea {
+    module {
+      downloadJavadoc = false
+      downloadSources = false
+    }
+  }
+
+  repositories {
+    maven {
+      url 'https://oss.sonatype.org/content/groups/public/'
+    }
+    mavenCentral()
+  }
+
+  dependencies {
+
+    // logback
+    compileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
+    testCompileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
+
+    compileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
+    testCompileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
+
+    testImplementation group: 'junit', name: 'junit', version: versions.junit
+
+    // lombok
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+
+    compileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
+    testCompileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
+
+    // compileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
+    // testCompileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
+
+    // api group: 'tk.mybatis', name: 'mapper-spring-boot-starter' , version: versions.mapper_starter
+    // api group: 'tk.mybatis', name: 'mapper', version: versions.mybatis
+
+  }
+
+  // 实时更新 snapshots
+  configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
+  }
+
+  sourceSets {
+    main {
+      resources {
+        srcDir 'src/main/java'
+      }
+    }
+  }
+
+  test {
+    exclude '**/*Test*.class'
+  }
+
+  publishing {
+    publications {
+
+      maven(MavenPublication) {
+        groupId project.group
+        artifactId project.name
+        version project.version
+        from components.java
+      }
+
+      mavenJava(MavenPublication) {
+        pom {
+
+          name = 'c-commons-java'
+          description = 'Java commons library'
+          url = "https://github.com/cc332030/${rootProject.name}"
+          licenses {
+            license {
+              name = 'The Apache License, Version 2.0'
+              url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+            }
+          }
+          developers {
+            developer {
+              id = 'c332030'
+              name = 'c332030'
+              email = 'c332030@gmail.com'
+            }
+          }
+          scm {
+            connection = "scm:git:git://git@github.com:cc332030/${rootProject.name}.git"
+            developerConnection = "scm:git:ssh://git@github.com:cc332030/${rootProject.name}.git"
+            url = "https://github.com/cc332030/${rootProject.name}"
+          }
+
+        }
+      }
+
+    }
 
     repositories {
-        maven {
-            url 'https://nexus.local.c332030.com/repository/maven-public/'
+      maven {
+        def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+        def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots"
+        url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+
+        credentials {
+          username ossrhUsername
+          password ossrhPassword
         }
-    }
-}
-
-subprojects {
-
-    apply plugin: 'java-library'
-    apply plugin: 'maven-publish'
-
-    group = 'com.c332030.mybatis'
-
-    sourceCompatibility = JavaVersion.VERSION_11
-    sourceCompatibility = JavaVersion.VERSION_11
-
-    [compileJava, compileTestJava, javadoc]*.options*.encoding = rootProject.ext.charset
-
-    java {
-        withJavadocJar()
-        withSourcesJar()
+      }
     }
 
-    jar {
-        enabled = true
+  }
 
-        into("META-INF/maven/$project.group/$project.name") {
-            from { generatePomFileForMavenPublication }
-            rename ".*", "pom.xml"
-        }
-    }
+  signing {
+    sign publishing.publications.mavenJava
+  }
 
-    repositories {
-        maven {
-            url 'https://nexus.local.c332030.com/repository/maven-public/'
-        }
-    }
-
-    publishing {
-        publications {
-            maven(MavenPublication) {
-                groupId project.group
-                artifactId project.name
-                version project.version
-                from components.java
-            }
-        }
-
-        repositories {
-            maven {
-              def releasesRepoUrl = "https://nexus.local.c332030.com/repository/maven-releases/"
-              def snapshotsRepoUrl = "https://nexus.local.c332030.com/repository/maven-snapshots/"
-              url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-
-              credentials {
-                username 'admin'
-                password '123456'
-              }
-            }
-        }
-    }
-
-    dependencies {
-
-        // logback
-        compileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
-        testCompileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
-
-        compileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
-        testCompileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
-
-        testImplementation group: 'junit', name: 'junit', version: versions.junit
-
-        // lombok
-        compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-        annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-
-        testCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-        testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-
-        compileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
-        testCompileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
-
-        // compileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
-        // testCompileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
-
-      // api group: 'tk.mybatis', name: 'mapper-spring-boot-starter' , version: versions.mapper_starter
-        // api group: 'tk.mybatis', name: 'mapper', version: versions.mybatis
-
-    }
-
-    // 实时更新 snapshots
-    configurations.all {
-        resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
-        resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-    }
-
-    // 测试配置
-    test {
-        // include '**/Test*.class'
-
-        exclude '**/*Test*.class'
-    }
+  nexusStaging {
+    packageGroup = project.group + '.' + rootProject.name
+    // packageGroup = 'com.c332030.c-commons-java'
+    stagingProfileId = "yourStagingProfileId"
+  }
 
 }
