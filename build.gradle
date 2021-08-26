@@ -1,14 +1,8 @@
-buildscript {
-
-  apply from: 'config.gradle'
-}
+import org.apache.tools.ant.taskdefs.condition.Os
 
 plugins {
   id "io.codearte.nexus-staging" version "0.30.0"
 }
-
-def ext = rootProject.ext
-def versions = ext.versions
 
 allprojects {
 
@@ -17,72 +11,36 @@ allprojects {
   apply plugin: 'maven-publish'
   apply plugin: 'signing'
 
-  sourceCompatibility = JavaVersion.VERSION_11
-  targetCompatibility = JavaVersion.VERSION_11
-
-  [compileJava, compileTestJava, javadoc]*.options*.encoding = ext.charset
-
-  jar {
-    enabled = true
-
-    into("META-INF/resources") {
-      from("src/main/webapp")
-    }
-  }
-
-  java {
-    withJavadocJar()
-    withSourcesJar()
-  }
-
-  idea {
-    module {
-      downloadJavadoc = false
-      downloadSources = false
-    }
-  }
-
-  repositories {
-    maven {
-      url 'https://oss.sonatype.org/content/groups/public/'
-    }
-    mavenCentral()
-  }
-
   dependencies {
 
     // logback
-    compileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
-    testCompileOnly group: 'ch.qos.logback', name: 'logback-core', version: versions.logback
+    compileOnly group: 'ch.qos.logback', name: 'logback-core', version: logback_version
+    testCompileOnly group: 'ch.qos.logback', name: 'logback-core', version: logback_version
 
-    compileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
-    testCompileOnly group: 'ch.qos.logback', name: 'logback-classic', version: versions.logback
+    compileOnly group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
+    testCompileOnly group: 'ch.qos.logback', name: 'logback-classic', version: logback_version
 
-    testImplementation group: 'junit', name: 'junit', version: versions.junit
+    testImplementation group: 'junit', name: 'junit', version: junit_version
 
     // lombok
-    compileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombok_version
 
-    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: versions.lombok
-    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: versions.lombok
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: lombok_version
+    testAnnotationProcessor group: 'org.projectlombok', name: 'lombok', version: lombok_version
 
-    compileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
-    testCompileOnly group: 'org.mybatis', name: 'mybatis', version: versions.mybatis
+    compileOnly group: 'org.mybatis', name: 'mybatis', version: mybatis_version
+    testCompileOnly group: 'org.mybatis', name: 'mybatis', version: mybatis_version
 
-    // compileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
-    // testCompileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: versions.mybatis_starter
+    // compileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: mybatis_starter_version
+    // testCompileOnly group: 'org.mybatis.spring.boot', name: 'mybatis-spring-boot-starter', version: mybatis_starter_version
 
-    // api group: 'tk.mybatis', name: 'mapper-spring-boot-starter' , version: versions.mapper_starter
-    // api group: 'tk.mybatis', name: 'mapper', version: versions.mybatis
+    // api group: 'tk.mybatis', name: 'mapper-spring-boot-starter' , version: mapper_starter_version
+    // api group: 'tk.mybatis', name: 'mapper', version: mybatis_version
 
   }
 
-  // 实时更新 snapshots
-  configurations.all {
-    resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
-    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
-  }
+  [compileJava, compileTestJava, javadoc]*.options*.encoding = charset
 
   sourceSets {
     main {
@@ -94,6 +52,66 @@ allprojects {
 
   test {
     exclude '**/*Test*.class'
+  }
+
+  java {
+    withJavadocJar()
+    withSourcesJar()
+    toolchain {
+      languageVersion = JavaLanguageVersion.of(jdk_version)
+      vendor = JvmVendorSpec.ADOPTOPENJDK
+      implementation = JvmImplementation.J9
+    }
+  }
+
+  jar {
+    enabled = true
+
+    into("META-INF/resources") {
+      from("src/main/webapp")
+    }
+  }
+
+  idea {
+    module {
+      downloadJavadoc = false
+      downloadSources = false
+    }
+  }
+
+  // 实时更新 snapshots
+  configurations.all {
+    resolutionStrategy.cacheDynamicVersionsFor 1, 'seconds'
+    resolutionStrategy.cacheChangingModulesFor 1, 'seconds'
+  }
+
+  repositories {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+
+      maven {
+        url 'https://maven.aliyun.com/repository/public'
+      }
+      maven {
+        credentials {
+          username aliyunPackagesUsername
+          password aliyunPackagesPassword
+        }
+        url 'https://packages.aliyun.com/maven/repository/2011805-snapshot-nunUNu'
+      }
+      maven {
+        credentials {
+          username aliyunPackagesUsername
+          password aliyunPackagesPassword
+        }
+        url 'https://packages.aliyun.com/maven/repository/2011805-release-MMUG60'
+      }
+    } else {
+
+      mavenCentral()
+      maven {
+        url 'https://oss.sonatype.org/content/groups/public/'
+      }
+    }
   }
 
   publishing {
