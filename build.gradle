@@ -42,14 +42,6 @@ allprojects {
 
   [compileJava, compileTestJava, javadoc]*.options*.encoding = charset
 
-  sourceSets {
-    main {
-      resources {
-        srcDir 'src/main/java'
-      }
-    }
-  }
-
   test {
     exclude '**/*Test*.class'
   }
