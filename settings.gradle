@@ -1,8 +1,8 @@
 
 rootProject.name = 'c-commons-mybatis'
 
-include 'c-mybatis-entity'
 include 'c-mybatis-constant'
+include 'c-mybatis-entity'
 include 'c-mybatis-model'
 
 include 'c-mybatis-dao'
